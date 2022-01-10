@@ -3,16 +3,23 @@ class BaseTank{
     tankSpeed = 100
     /** @type {number} */
     damageMax = 2
+    /** @type {Phaser.Physics.Arcade.Group} */
+    bullets
     constructor(scene, x, y,texture,frame){
         this.scene = scene
         this.shadow = this.scene.add.image(x,y,texture, 'shadow')
         this.shadow.setDepth(1)
         this.hull = this.scene.physics.add.sprite(x,y,texture,frame)
+        this.hull.displayWidth=(172)
+        this.hull.displayHeight=(172)
+        
         this.hull.setDepth(2)
+        
         this.hull.body.collideWorldBounds = true
         this.hull.body.bounce.setTo(1,1)
         this.turret = this.scene.physics.add.sprite(x,y, texture,'turret')
         this.turret.setDepth(4)
+        
         this.damageCount = 0
         
     }
@@ -24,16 +31,24 @@ class BaseTank{
     damage(){
 
     }
-    setBullets(){
-
+    setBullets(bullets){
+        this.bullets = bullets
     }
     burn(){
+        this.turret.setVisible(false)
+        this.hull.setVelocity(0)
+        this.hull.body.immovable = true
 
     }
     isDestroyed(){
-
+        if(this.damageCount>= this.damageMax){
+            return true
+        }
     }
     isImmobilised(){
+        if(this.damageCount >= this.damageMax -1){
+            return true
+        }
 
     }
     enableCollision(destructLayer){

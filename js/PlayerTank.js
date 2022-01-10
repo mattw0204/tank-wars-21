@@ -17,20 +17,16 @@ class PlayerTank extends BaseTank{
             if(this.currentSpeed < this.tankSpeed){
                 this.currentSpeed += 10
             }
-        }else if(this.keys.s.isDown){
-            if(this.currentSpeed > -this.tankSpeed){
-                this.currentSpeed -= 10
-            }
         }else(
             this.currentSpeed *= 0.9
         )
-        if(this.keys.a.isDown){
+        if(this.keys.a.isDown&& !this.isDestroyed()){
             if(this.currentSpeed > 0){
                 this.hull.angle--
             }else(
                 this.hull.angle++
             )
-        }else if(this.keys.d.isDown){
+        }else if(this.keys.d.isDown&& !this.isDestroyed()){
             if(this.currentSpeed > 0){
                 this.hull.angle++
             }else(
@@ -40,5 +36,12 @@ class PlayerTank extends BaseTank{
         this.scene.physics.velocityFromRotation(this.hull.rotation,this.currentSpeed, this.hull.body.velocity)
         const worldPoint = this.scene.input.activePointer.positionToCamera(this.scene.cameras.main)
         this.turret.rotation = Phaser.Math.Angle.Between(this.turret.x, this.turret.y, worldPoint.x, worldPoint.y)
+    }
+    damage(){
+        this.scene.cameras.main.shake(200,0.005)
+        this.damageCount++
+        if(this.isDestroyed()){
+            this.burn()
+        }
     }
 }
