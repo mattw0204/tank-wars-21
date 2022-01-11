@@ -27,6 +27,7 @@ class BaseTank{
         this.shadow.x = this.turret.x = this.hull.x
         this.shadow.y = this.turret.y = this.hull.y
         this.shadow.rotation = this.hull.rotation
+        
     }
     damage(){
 

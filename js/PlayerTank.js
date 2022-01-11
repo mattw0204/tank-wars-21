@@ -6,7 +6,8 @@ class PlayerTank extends BaseTank{
             w:Phaser.Input.Keyboard.KeyCodes.W,
             a:Phaser.Input.Keyboard.KeyCodes.A,
             s:Phaser.Input.Keyboard.KeyCodes.S,
-            d:Phaser.Input.Keyboard.KeyCodes.D
+            d:Phaser.Input.Keyboard.KeyCodes.D,
+            shift:Phaser.Input.Keyboard.KeyCodes.SHIFT
         })
         this.damageMax = 10
         this.currentSpeed = 0
@@ -16,6 +17,9 @@ class PlayerTank extends BaseTank{
         if(this.keys.w.isDown){
             if(this.currentSpeed < this.tankSpeed){
                 this.currentSpeed += 10
+            }
+            if(this.keys.shift.isDown){
+                this.currentSpeed = 200
             }
         }else(
             this.currentSpeed *= 0.9

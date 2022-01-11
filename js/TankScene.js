@@ -23,9 +23,19 @@ class TankScene extends Phaser.Scene {
         this.load.tilemapTiledJSON('level1', 'assets/level1.json')
         this.load.spritesheet('kaboom','assets/tanks/explosion.png',{
             frameWidth:64,frameHeight:64
+        
         })
+        this.load.audio('CannonFire', 'assets/CannonFire.mp3')
+        this.load.audio('Explosion', 'assets/Explosion.mp3')
+        this.load.audio('PlayerHit', 'assets/PlayerHit.mp3')
+        this.load.audio('WallHit', 'assets/WallHit.mp3')
+        this.load.audio('BloodyPirates','assets/BloodyPirates.mp3')
+        
+        
     }
     create() {
+        
+        
         this.map = this.make.tilemap({key:'level1'})
         const landscape = this.map.addTilesetImage('landscape-tileset','tileset')
         this.map.createLayer('groundLayer',[landscape], 0, 0)
@@ -81,6 +91,7 @@ class TankScene extends Phaser.Scene {
         this.physics.world.on('worldbounds', function(body){
             this.disposeOfBullet(body.gameObject)
         }, this)
+        this.music()
     }
     update(time, delta) {
         this.player.update()
@@ -121,6 +132,7 @@ class TankScene extends Phaser.Scene {
     }
     fireBullet(bullet, rotation, target){
         //the bullet is a sprite :)
+        
         bullet.setDepth(3)
         bullet.body.collideWorldBounds = true
         bullet.body.onWorldBounds = true
@@ -128,6 +140,7 @@ class TankScene extends Phaser.Scene {
         bullet.rotation = rotation
         this.physics.velocityFromRotation(bullet.rotation, 500, bullet.body.velocity)
         this.physics.add.collider(bullet, this.destructLayer, this.damageWall,null, this)
+
         if(target === this.player){
             this.physics.add.overlap(this.player.hull,bullet, this.bulletHitPlayer,null,this)
 
@@ -135,6 +148,8 @@ class TankScene extends Phaser.Scene {
             this.physics.add.overlap(this.enemyTanks[i].hull, bullet, this.bulletHitEnemy, null, this)
             this.bulletHitEnemy,null,this}
         }
+        let Cannonfire = this.sound.add('CannonFire', {volume: 0.4})
+        Cannonfire.play()
 
     }
     bulletHitPlayer(hull, bullet){
@@ -150,6 +165,8 @@ class TankScene extends Phaser.Scene {
                 explosion.play('explode')
             }
         }
+        let PlayerHit = this.sound.add('PlayerHit', {volume: 0.4})
+        PlayerHit.play()
 
     }
     bulletHitEnemy(hull, bullet){
@@ -177,6 +194,9 @@ class TankScene extends Phaser.Scene {
                 this.enemyTanks.splice(index, 1)
             }
         }
+        let Explosion = this.sound.add('Explosion', {volume: 0.4})
+        Explosion.play()
+        
     
     }
     activateExplosion(explosion){
@@ -193,6 +213,8 @@ class TankScene extends Phaser.Scene {
         if(tileProperties&&tileProperties.collides){
             newTile.setCollision(true)
         }
+        let WallHit = this.sound.add('WallHit', {volume: 0.4})
+        WallHit.play()
 
     }
     disposeOfBullet(bullet){
@@ -202,4 +224,35 @@ class TankScene extends Phaser.Scene {
         this.explosions.killAndHide(gameObject)
 
     }
+    music() {
+        let config = {
+            type: Phaser.AUTO,
+            parent: 'TankScene',
+            width: 0,
+            height: 0,
+            pixelArt: true,
+            scene: {
+                preload: preload,
+                create: create
+            }
+        };
+        let game = new Phaser.Game(config);
+        function preload() {
+            this.load.audio('theme', [
+                'assets/BackgroundMusic.mp3'
+            ])
+            this.load.audio('BloodyPirates', [
+                'assets/BloodyPirates.mp3'
+            ])
+        }
+
+        function create() {
+            let music = this.sound.add('theme')
+            music.loop = true
+            music.play();
+            let intro = this.sound.add('BloodyPirates')
+            intro.play();
+        }
+    }
+    
 }

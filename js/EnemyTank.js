@@ -12,6 +12,7 @@ class EnemyTank extends BaseTank{
         super(scene, x ,y, texture, frame)
         this.player = player
         this.hull.angle = Phaser.Math.RND.angle()
+        this.hull.rotation = this.hull.angle
     }
     initMovement(){
         this.scene.physics.velocityFromRotation(this.hull.rotation, this.tankSpeed, this.hull.body.velocity)
@@ -41,6 +42,8 @@ class EnemyTank extends BaseTank{
             this.hull.destroy()
         }else if(this.damageCount == this.damageMax -1){
             this.burn()
+            
         }
     }
+    
 }
