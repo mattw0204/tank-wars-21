@@ -44,8 +44,10 @@ class PlayerTank extends BaseTank{
     damage(){
         this.scene.cameras.main.shake(200,0.005)
         this.damageCount++
+        
         if(this.isDestroyed()){
             this.burn()
         }
+        
     }
 }
