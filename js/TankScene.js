@@ -15,9 +15,13 @@ class TankScene extends Phaser.Scene {
     /** @type {Phaser.GameObjects.Group} */
     explosions
     /** @type {Phaser.GameObjects.Text} */
-    MainUI
+    HPUI
+    /** @type {Phaser.GameObjects.Text} */
+    ECUI
     /** @type {number} */
     HP = 10
+    /** @type {number} */
+    enemyCount = 0
         
     
     preload() {
@@ -99,14 +103,20 @@ class TankScene extends Phaser.Scene {
         }, this)
         this.music()
         //ui setup
-        let HPStr = ('  '+this.HP)
-        this.MainUI = this.add.text(16, 16, HPStr, {
-            fontSize: '12px',
+        let HPStr = ('Hull Points: '+this.HP)
+        this.HPUI = this.add.text(600, 645, HPStr, {
+            fontSize: '30px',
             color: '#FFF',
-            fontFamily: 'sans-serif'
+            fontFamily: 'Book-Antiqua'
         }).setScrollFactor(0, 0)
-        
-        this.MainUI.setText(HPStr)
+        this.HPUI.setText(HPStr)
+        let ECStr = ('Enemies Left: '+this.enemyCount)
+        this.ECUI = this.add.text(100, 16, ECStr, {
+            fontSize: '30px',
+            color: '#FFF',
+            fontFamily: 'Book-Antiqua'
+        }).setScrollFactor(0, 0)
+        this.ECUI.setText(ECStr)
     }
     update(time, delta) {
         this.player.update()
@@ -131,6 +141,8 @@ class TankScene extends Phaser.Scene {
         if(this.enemyTanks.length>1){
             for(let i = 0; i< this.enemyTanks.length - 1; i++){
                 this.physics.add.collider(enemyTank.hull, this.enemyTanks[i].hull)
+                this.enemyCount++
+                
             }
         }
     }
@@ -182,9 +194,8 @@ class TankScene extends Phaser.Scene {
         }
         let PlayerHit = this.sound.add('PlayerHit', {volume: 0.4})
         this.HP-=1
-        let HPStr = ('  '+this.HP)
-        this.MainUI.setText(HPStr) 
-        console.log(HPStr)
+        let HPStr = ('Hull Points: '+this.HP)
+        this.HPUI.setText(HPStr) 
         PlayerHit.play()
         
 
@@ -212,6 +223,9 @@ class TankScene extends Phaser.Scene {
             }
             if(enemy.isDestroyed()){
                 this.enemyTanks.splice(index, 1)
+                this.enemyCount--
+                let ECStr = ('Enemies Left: '+this.enemyCount)
+                this.ECUI.setText(ECStr) 
             }
         }
         let Explosion = this.sound.add('Explosion', {volume: 0.4})
