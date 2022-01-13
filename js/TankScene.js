@@ -16,6 +16,8 @@ class TankScene extends Phaser.Scene {
     explosions
     /** @type {Phaser.GameObjects.Text} */
     MainUI
+    /** @type {number} */
+    HP = 10
         
     
     preload() {
@@ -97,11 +99,14 @@ class TankScene extends Phaser.Scene {
         }, this)
         this.music()
         //ui setup
-        this.MainUI = this.add.text(16, 16, '0', {
+        let HPStr = ('  '+this.HP)
+        this.MainUI = this.add.text(16, 16, HPStr, {
             fontSize: '12px',
             color: '#FFF',
             fontFamily: 'sans-serif'
         }).setScrollFactor(0, 0)
+        
+        this.MainUI.setText(HPStr)
     }
     update(time, delta) {
         this.player.update()
@@ -162,7 +167,7 @@ class TankScene extends Phaser.Scene {
         Cannonfire.play()
 
     }
-    bulletHitPlayer(hull, bullet,damageMax,damageCount){
+    bulletHitPlayer(hull, bullet,damageMax,damageCount,HP){
         this.disposeOfBullet(bullet)
         this.player.damage()
         if(this.player.isDestroyed()){
@@ -176,9 +181,12 @@ class TankScene extends Phaser.Scene {
             }
         }
         let PlayerHit = this.sound.add('PlayerHit', {volume: 0.4})
-        
+        this.HP-=1
+        let HPStr = ('  '+this.HP)
+        this.MainUI.setText(HPStr) 
+        console.log(HPStr)
         PlayerHit.play()
-        this.UIUpdate()
+        
 
     }
     bulletHitEnemy(hull, bullet){
@@ -266,10 +274,7 @@ class TankScene extends Phaser.Scene {
             intro.play();
         }
     }
-    UIUpdate(damageMax,damageCount){
-        
-        this.MainUI.setText('  '+(damageMax-damageCount))
-    }
+    
     
     
 }

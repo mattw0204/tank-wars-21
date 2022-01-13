@@ -12,6 +12,12 @@ class PlayerTank extends BaseTank{
         this.damageMax = 10
         this.currentSpeed = 0
     }
+    preload(){
+
+    }
+    create(){
+
+    }
     update(){
         super.update()
         if(this.keys.w.isDown){
@@ -50,4 +56,5 @@ class PlayerTank extends BaseTank{
         }
         
     }
+    
 }
