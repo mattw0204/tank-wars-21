@@ -20,16 +20,24 @@ class TankScene extends Phaser.Scene {
     ECUI
     /** @type {Phaser.GameObjects.Text} */
     AmmoUI
+    /** @type {Phaser.GameObjects.Text} */
+    ScoreUI
     /** @type {number} */
     HP = 10
+    /** @type {number} */
+    Score = 0
     /** @type {number} */
     enemyCount = 0
     /** @type {number} */
     ammoCount = 5
+    /** @type {number} */
+    ammoTotal = 99
+    
         
     
     preload() {
         this.load.image('bullet', 'assets/tanks/bullet.png')
+        this.load.image('uioverlay','assets/UIOverlay.png')
         this.load.atlas('tank','assets/tanks/tanks.png','assets/tanks/tanks.json')
         this.load.atlas('boss','assets/tanks/boss-tanks.png','assets/tanks/tanks.json')
         this.load.atlas('enemy','assets/tanks/enemy-tanks.png','assets/tanks/tanks.json')
@@ -49,6 +57,7 @@ class TankScene extends Phaser.Scene {
     }
     create() {
         
+        this.add.image(750, 350, 'uioverlay').setScrollFactor(0, 0).setDepth(6)
         
         this.map = this.make.tilemap({key:'level1'})
         const landscape = this.map.addTilesetImage('landscape-tileset','tileset')
@@ -115,7 +124,7 @@ class TankScene extends Phaser.Scene {
             fontSize: '30px',
             color: '#FFF',
             fontFamily: 'Book-Antiqua'
-        }).setScrollFactor(0, 0)
+        }).setScrollFactor(0, 0).setDepth(6)
         this.HPUI.setText(HPStr)
         //enemycount
         let ECStr = ('Enemies Left: '+this.enemyCount)
@@ -123,16 +132,24 @@ class TankScene extends Phaser.Scene {
             fontSize: '30px',
             color: '#FFF',
             fontFamily: 'Book-Antiqua'
-        }).setScrollFactor(0, 0)
+        }).setScrollFactor(0, 0).setDepth(6)
         this.ECUI.setText(ECStr)
         //ammocount
-        let AmmoStr = ('Cannon Shots '+this.ammoCount+'/5')
+        let AmmoStr = ('Cannon Shots '+this.ammoCount+'/'+this.ammoTotal)
         this.AmmoUI = this.add.text(1200, 645, AmmoStr, {
             fontSize: '30px',
             color: '#FFF',
             fontFamily: 'Book-Antiqua'
-        }).setScrollFactor(0, 0)
+        }).setScrollFactor(0, 0).setDepth(6)
         this.AmmoUI.setText(AmmoStr)
+        //hull points
+        let ScoreStr = ('Score: '+this.Score)
+        this.ScoreUI = this.add.text(600, 10, ScoreStr, {
+            fontSize: '30px',
+            color: '#FFF',
+            fontFamily: 'Book-Antiqua'
+        }).setScrollFactor(0, 0).setDepth(6)
+        this.ScoreUI.setText(ScoreStr)
     }
     update(time, delta) {
         this.player.update()
@@ -169,8 +186,15 @@ class TankScene extends Phaser.Scene {
     tryShoot(pointer){
         /** @type {Phaser.Physics.Arcade.Sprite} */
         let bullet = this.bullets.get(this.player.turret.x, this.player.turret.y)
-        if(bullet){
+        
+        if(bullet&&this.ammoCount>0){
             this.fireBullet(bullet, this.player.turret.rotation, this.enemyTanks)
+            this.ammoCount--
+        let AmmoStr = ('Cannon Shots '+this.ammoCount+'/'+this.ammoTotal)
+        this.AmmoUI.setText(AmmoStr) 
+        this.Score -=10
+        let ScoreStr = ('Score: '+this.Score)
+        this.ScoreUI.setText(ScoreStr)
         }
     }
     fireBullet(bullet, rotation, target){
@@ -186,16 +210,17 @@ class TankScene extends Phaser.Scene {
 
         if(target === this.player){
             this.physics.add.overlap(this.player.hull,bullet, this.bulletHitPlayer,null,this)
+            
 
-        }else{for(let i = 0; i < this.enemyTanks.length; i++){
+        }else
+        
+        {for(let i = 0; i < this.enemyTanks.length; i++){
             this.physics.add.overlap(this.enemyTanks[i].hull, bullet, this.bulletHitEnemy, null, this)
             this.bulletHitEnemy,null,this}
         }
         let Cannonfire = this.sound.add('CannonFire', {volume: 0.4})
         Cannonfire.play()
-        this.ammoCount--
-        let AmmoStr = ('Cannon Shots '+this.ammoCount+'/5')
-        this.AmmoUI.setText(AmmoStr) 
+        
 
     }
     bulletHitPlayer(hull, bullet,damageMax,damageCount,HP){
@@ -233,16 +258,21 @@ class TankScene extends Phaser.Scene {
         }
         this.disposeOfBullet(bullet)
         enemy.damage()
-        
+        this.Score +=15
+        let ScoreStr = ('Score: '+this.Score)
         if(enemy.isImmobilised()){
             let explosion = this.explosions.get(hull.x,hull.y)
             if(explosion){
                 this.activateExplosion(explosion)
                 explosion.on('animationComplete',this.animComplete,this)
                 explosion.play('explode')
+                this.Score +=30
+                let ScoreStr = ('Score: '+this.Score)
             }
             if(enemy.isDestroyed()){
                 this.enemyTanks.splice(index, 1)
+                this.Score +=45
+                let ScoreStr = ('Score: '+this.Score)
                 this.enemyCount--
                 let ECStr = ('Enemies Left: '+this.enemyCount)
                 this.ECUI.setText(ECStr)
@@ -250,6 +280,7 @@ class TankScene extends Phaser.Scene {
                     
                 }
             }
+        this.ScoreUI.setText(ScoreStr)
         }
         let Explosion = this.sound.add('Explosion', {volume: 0.4})
         Explosion.play()
@@ -275,11 +306,13 @@ class TankScene extends Phaser.Scene {
 
     }
     disposeOfBullet(bullet){
+        if (this.ammoTotal>0){
         this.ammoCount++
+        this.ammoTotal--}
         if (this.ammoCount>5){
             this.ammoCount=5
         }
-        let AmmoStr = ('Cannon Shots '+this.ammoCount+'/5')
+        let AmmoStr = ('Cannon Shots '+this.ammoCount+'/'+this.ammoTotal)
         this.AmmoUI.setText(AmmoStr) 
         
         bullet.disableBody(true, true)
