@@ -150,6 +150,7 @@ class TankScene extends Phaser.Scene {
             fontFamily: 'Book-Antiqua'
         }).setScrollFactor(0, 0).setDepth(6)
         this.ScoreUI.setText(ScoreStr)
+        this.music()
     }
     update(time, delta) {
         this.player.update()
